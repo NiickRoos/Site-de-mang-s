@@ -58,7 +58,7 @@ useEffect(() => {
   function adicionarItemCarrinho(produtoId:string){
     api.post("/carrinho", {produtoId, quantidade:1})
 
-.then(() => alert("produto adicionado corretamente") )
+.then(() => alert("produto adicionado corretamentee") )
 
     .catch((error) => {
       if(error.response){
