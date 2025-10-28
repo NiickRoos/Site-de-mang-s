@@ -14,7 +14,7 @@ type ProdutoType = {
 function App() {
 useEffect(() => {
   
-  api.get("/produtos")
+ api.get("/produtos")
 .then((response:any)=>setProdutos(response.data))
 .catch((error) => {  
   if(error.response){
@@ -27,9 +27,9 @@ useEffect(() => {
         alert(`servidor não respondeu, vc ligou o backeend? Erro do axios: ${error?.mensagem?? "Erro desconhecido chame o tere"}`)
       }
 })
- 
-}, [])
 
+}, [])
+}
   const [produtos, setProdutos] = useState<ProdutoType[]>([])
 
   function handleSubmit(event:React.FormEvent<HTMLFormElement>){
