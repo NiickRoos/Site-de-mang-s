@@ -6,11 +6,30 @@ const api = axios.create({
 //Nós vamos criar um middleware para adicionar o token na requisição
 
 api.interceptors.request.use((config) =>{
-    const token = localStorage.getItem("token")
-    const url = config.url || ""
-    const isPublic = url.includes("login") || url.includes("register")
+    const rawToken = localStorage.getItem("token")
+    const base = (axios.defaults.baseURL || import.meta.env.VITE_API_URL || "") as string
+    const fullPath = (() => {
+        try {
+            return new URL(config.url || "", base).pathname
+        } catch {
+            return config.url || ""
+        }
+    })()
+    const pathLower = (fullPath || "").toLowerCase()
+    const publicHints = [
+        "/login",
+        "/register",
+        "/auth/login",
+        "/auth/register",
+        "/usuarios",
+        "/cadastro"
+    ]
+    const isSkipAuth = !!(config.headers as any)?.["X-Skip-Auth"]
+    const isPublic = isSkipAuth || publicHints.some(h => pathLower.includes(h))
+    const token = rawToken && rawToken !== "undefined" && rawToken !== "null" ? rawToken : ""
     if(token && !isPublic){
-        config.headers!.Authorization = `Bearer ${token}`
+        config.headers = config.headers ?? {}
+        ;(config.headers as any).Authorization = `Bearer ${token}`
     }
     return config
 })
@@ -25,8 +44,24 @@ api.interceptors.response.use(
         const status = error?.response?.status;
         //Usuário não está autenticado ou token inválido
 
-          // 401 ou 403 → redireciona para login
-    if ((status === 401 || status === 403) && !error?.response?.config?.url.includes("login") && !error?.response?.config?.url.includes("register")) {
+          // 401 ou 403 → redireciona para login (exceto rotas públicas)
+    const base = (axios.defaults.baseURL || import.meta.env.VITE_API_URL || "") as string
+    const reqUrl = error?.response?.config?.url || ""
+    const reqPath = (() => {
+        try { return new URL(reqUrl, base).pathname } catch { return reqUrl }
+    })()
+    const pathLower = (reqPath || "").toLowerCase()
+    const publicHints = [
+        "/login",
+        "/register",
+        "/auth/login",
+        "/auth/register",
+        "/usuarios",
+        "/cadastro"
+    ]
+    const isSkipAuth = !!(error?.response?.config?.headers as any)?.["X-Skip-Auth"]
+    const isPublic = isSkipAuth || publicHints.some(h => pathLower.includes(h))
+    if ((status === 401 || status === 403) && !isPublic) {
       localStorage.removeItem("token")
       window.location.href = `/login?mensagem=${encodeURIComponent("Token inválido ou sem permissão")}`
     }

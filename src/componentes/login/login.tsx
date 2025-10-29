@@ -22,7 +22,7 @@ function Login(){
                 alert("Preencha nome, idade válida, email e senha.");
                 return;
             }
-            api.post(REGISTER_ENDPOINT, { nome, idade, email, senha })
+            api.post(REGISTER_ENDPOINT, { nome, idade, email, senha }, { headers: { 'X-Skip-Auth': 'true' } })
             .then(()=>{
                 const msg = encodeURIComponent("Conta criada com sucesso. Faça login.")
                 const r = redirect ? `&redirect=${encodeURIComponent(redirect)}` : "";
