@@ -20,7 +20,7 @@ api.interceptors.response.use(
             window.location.href=`/error?mensagem=${encodeURIComponent("Ligue o Servidor-> NPM RUN DEV")}`
         }
         const status = error?.response?.status;
-        if(status===401&&!(error?.response?.config?.url.endsWith("/login"))){
+        if(status===401&&!(error?.response?.config?.url.includes("/login"))){
             localStorage.removeItem("token")
             window.location.href=`/login?mensagem=${encodeURIComponent("Token inválido")}`
         }

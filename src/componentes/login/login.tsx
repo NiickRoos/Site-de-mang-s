@@ -14,6 +14,8 @@ function Login(){
         .then((response:any)=>{
             if(response.status ===200){
                 localStorage.setItem('token', response?.data?.token);
+                navigate("/dashboard");
+
             }
         })
         .catch((error:any)=>{
