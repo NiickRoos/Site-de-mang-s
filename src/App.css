@@ -37,6 +37,25 @@
   padding: 2em;
 }
 
+/* Top actions bar */
+.top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.login-button {
+  background: #646cff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.login-button:hover {
+  background: #535bf2;
+}
+
 .read-the-docs {
   color: #888;
 }
