@@ -135,6 +135,12 @@ function Adm() {
       </div>
     </div>
   );
+//nicole C2
+  //Criar ou modificar área de administração acessível apenas por usuário ADMIN para a tarefa de 
+  // Mostrar a quantidade de usuários com carrinhos ativos no sistema e mostrar a soma de todos os 
+  // valores dos carrinhos que estão criados. 
+  // Mostrando um ranking dos itens que mais aparece nos carrinhos.
+  
 }
 
 export default Adm;
