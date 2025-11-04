@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api/api";
+import "./Carrinho.css"; // importa o CSS 💅
 
 interface CarrinhoItem {
   _id: string;
@@ -26,7 +27,6 @@ function Carrinho() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔹 Buscar carrinho do usuário
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -41,26 +41,9 @@ function Carrinho() {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res: any) => {
-        console.log("🧾 Dados recebidos do backend:", res.data);
-
-        // se o backend retorna um objeto com id e itens
         if (res.data && Array.isArray(res.data.itens)) {
           setCarrinhoId(res.data._id);
           const normalizados: CarrinhoItem[] = res.data.itens.map((item: any) => ({
-            _id: item._id || item.produtoId,
-            produto: {
-              _id: item.produtoId,
-              nome: item.nome || "Produto sem nome",
-              preco: Number(item.precoUnitario) || 0,
-              descricao: item.descricao || "",
-              urlfoto: item.urlfoto || "",
-            },
-            quantidade: Number(item.quantidade) || 1,
-          }));
-          setItens(normalizados);
-        } else {
-          // caso o backend envie direto o array
-          const normalizados: CarrinhoItem[] = res.data.map((item: any) => ({
             _id: item._id || item.produtoId,
             produto: {
               _id: item.produtoId,
@@ -96,102 +79,97 @@ function Carrinho() {
           prev.map((i) => (i._id === itemId ? { ...i, quantidade: novaQtd } : i))
         );
       })
-      .catch((err) => {
-        console.error(err);
-        alert(err?.response?.data?.mensagem || "Erro ao atualizar quantidade");
-      });
+      .catch(() => alert("Erro ao atualizar quantidade"));
   }
 
-  // 🔹 Agora removendo item corretamente usando /carrinho/:id/item/:itemId
   function removerItem(itemId: string) {
     if (!carrinhoId) return alert("Carrinho não encontrado");
 
     api
       .delete(`/carrinho/${carrinhoId}/item/${itemId}`)
       .then(() => setItens((prev) => prev.filter((i) => i._id !== itemId)))
-      .catch((err) =>
-        alert(err?.response?.data?.mensagem || "Erro ao remover item")
-      );
+      .catch(() => alert("Erro ao remover item"));
   }
 
-  const total = useMemo(() => {
-    return itens.reduce(
-      (acc, i) => acc + Number(i.produto.preco) * i.quantidade,
-      0
-    );
-  }, [itens]);
+  const total = useMemo(
+    () => itens.reduce((acc, i) => acc + Number(i.produto.preco) * i.quantidade, 0),
+    [itens]
+  );
 
   return (
-    <div>
-      <h1>🛒 Meu Carrinho</h1>
+    <div className="carrinho-page">
+      {/* 🟣 Cabeçalho */}
+      <header className="header">
+        <h1 className="logo">📚 MangáVerse</h1>
+        <nav className="menu">
+          <button onClick={() => navigate("/")} className="menu-btn">Início</button>
+          <button onClick={() => navigate("/produtos")} className="menu-btn">Mangás</button>
+          <button onClick={() => navigate("/perfil")} className="menu-btn">Perfil</button>
+        </nav>
+      </header>
 
-      <div style={{ marginBottom: 12 }}>
-        <input
-          type="text"
-          placeholder="Filtrar por nome do produto"
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-        />
-      </div>
+      <main className="carrinho-container">
+        <h2 className="titulo">🛒 Meu Carrinho</h2>
 
-      {itensFiltrados.length === 0 ? (
-        <p>Seu carrinho está vazio.</p>
-      ) : (
-        <div className="carrinho-lista">
-          {itensFiltrados.map((item) => (
-            <div key={item._id} className="carrinho-item" style={{ marginBottom: 16 }}>
-              <img
-                src={item.produto.urlfoto || "https://via.placeholder.com/84"}
-                alt={item.produto.nome}
-                style={{ width: 84, height: 84, objectFit: "cover", borderRadius: 8 }}
-              />
-              <div style={{ textAlign: "left", marginLeft: 10 }}>
-                <h3>{item.produto.nome}</h3>
-                <p>Preço: R$ {Number(item.produto.preco).toFixed(2)}</p>
+        <div className="filtro-container">
+          <input
+            type="text"
+            placeholder="Filtrar por nome do produto"
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+          />
+          <button className="voltar-btn" onClick={() => navigate(-1)}>⬅ Voltar</button>
+        </div>
 
-                <div>
+        {itensFiltrados.length === 0 ? (
+          <p className="vazio">Seu carrinho está vazio.</p>
+        ) : (
+          <div className="lista-itens">
+            {itensFiltrados.map((item) => (
+              <div key={item._id} className="card-item">
+                <img
+                  src={item.produto.urlfoto || "https://via.placeholder.com/84"}
+                  alt={item.produto.nome}
+                />
+                <div className="info-item">
+                  <h3>{item.produto.nome}</h3>
+                  <p>Preço: R$ {Number(item.produto.preco).toFixed(2)}</p>
+
+                  <div className="quantidade">
+                    <button onClick={() => atualizarQuantidade(item._id, item.quantidade - 1)}>
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      value={item.quantidade}
+                      min={1}
+                      onChange={(e) =>
+                        atualizarQuantidade(item._id, Number(e.target.value))
+                      }
+                    />
+                    <button onClick={() => atualizarQuantidade(item._id, item.quantidade + 1)}>
+                      +
+                    </button>
+                  </div>
+
                   <button
-                    onClick={() => atualizarQuantidade(item._id, item.quantidade - 1)}
+                    className="remover-btn"
+                    onClick={() => removerItem(item._id)}
                   >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    value={item.quantidade}
-                    min={1}
-                    onChange={(e) =>
-                      atualizarQuantidade(item._id, Number(e.target.value))
-                    }
-                    style={{ width: 60, margin: "0 8px" }}
-                  />
-                  <button
-                    onClick={() => atualizarQuantidade(item._id, item.quantidade + 1)}
-                  >
-                    +
+                    Remover
                   </button>
                 </div>
-
-                <button
-                  onClick={() => removerItem(item._id)}
-                  style={{
-                    marginTop: 8,
-                    backgroundColor: "#ff4444",
-                    color: "white",
-                    border: "none",
-                    padding: "4px 10px",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                  }}
-                >
-                  Remover
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      <h2>Total: R$ {total.toFixed(2)}</h2>
+        <h2 className="total">Total: R$ {total.toFixed(2)}</h2>
+      </main>
+
+      <footer className="footer">
+        <p>© 2025 MangáVerse — Todos os direitos reservados.</p>
+      </footer>
     </div>
   );
 }
