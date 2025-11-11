@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import api from "../api/api";
-import "./Adm.css"; // CSS separado para admin
+import React, { useEffect, useState } from "react"; // [c1 – Paulo] Import React e hooks
+import { useLocation, useNavigate } from "react-router-dom"; // [c1 – Paulo] Import hooks de navegação
+import api from "../api/api"; // [c1 – Paulo] Import API client
+import "./Adm.css"; // [c1 – Paulo] Import CSS separado para admin
 
-interface Produto {
+interface Produto { // [c1 – Paulo] Definição da interface Produto
   _id: string;
   nome: string;
   preco: number;
@@ -12,7 +12,7 @@ interface Produto {
 }
 
 // niccole c2: Tipos auxiliares para métricas de carrinhos (admin)
-interface CarrinhoItemAdmin {
+interface CarrinhoItemAdmin { // [c2 – Nicole] Definição da interface CarrinhoItemAdmin
   produtoId: string;
   nome?: string;
   precoUnitario?: number | string;
@@ -30,6 +30,7 @@ interface MetricsDirectResponse {
   ranking: { produtoId: string; nome?: string; count: number }[];
 }
 
+// [c1 – Paulo] Página protegida para administradores (role=admin)
 function Adm() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [form, setForm] = useState({ nome: "", preco: "", descricao: "", urlfoto: "" });
@@ -41,6 +42,8 @@ function Adm() {
   const [rankingItens, setRankingItens] = useState<{ produtoId: string; nome?: string; count: number }[]>([]);
   const [metricsLoading, setMetricsLoading] = useState<boolean>(false);
   const [metricsError, setMetricsError] = useState<string>("");
+  // [c5 – Amanda] Estado para diálogo de confirmação de exclusão (add-only)
+  const [produtoParaDeletar, setProdutoParaDeletar] = useState<Produto | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,6 +56,7 @@ function Adm() {
       return;
     }
 
+    // [c1 – Paulo] Decodifica JWT e restringe acesso a role=admin
     const payload = JSON.parse(atob(token.split(".")[1]));
     setRole(payload.role);
     if (payload.role !== "admin") {
@@ -66,17 +70,46 @@ function Adm() {
       .then(res => setProdutos(res.data.map((p: any) => ({ ...p, preco: Number(p.preco) })) ))
       .catch(err => console.log(err));
 
-    // niccole c2: Após validar ADMIN, carregar métricas do dashboard
+    // [c2 – Nicole] Após validar ADMIN, carregar métricas do dashboard
     carregarMetricasAdmin();
   }, []);
 
-  // Funções de admin
+  // [c2 – Nicole] Atualização automática das métricas (polling + foco/visibilidade da aba)
+  useEffect(() => {
+    // Atualiza quando a aba volta ao foco
+    function onFocus() {
+      if (!metricsLoading) carregarMetricasAdmin();
+    }
+    window.addEventListener("focus", onFocus);
+
+    // Atualiza quando a aba fica visível novamente
+    function onVisibility() {
+      if (document.visibilityState === "visible" && !metricsLoading) {
+        carregarMetricasAdmin();
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // Polling a cada 10s
+    const id = setInterval(() => {
+      if (!metricsLoading) carregarMetricasAdmin();
+    }, 10000);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+      clearInterval(id);
+    };
+  }, [metricsLoading]);
+
+  // Funções de admin (formulário de produtos)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleAdicionar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // [c3 – Guilherme] Criar produto (POST /produtos)
     api.post<Produto>("/produtos", {
       nome: form.nome,
       preco: parseFloat(form.preco),
@@ -94,6 +127,7 @@ function Adm() {
   const handleSalvar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editandoId) return;
+    // [c4 – Guilherme] Editar produto (PUT /produtos/:id)
     api.put<Produto>(`/produtos/${editandoId}`, {
       nome: form.nome,
       preco: parseFloat(form.preco),
@@ -119,13 +153,27 @@ function Adm() {
     setForm({ nome: "", preco: "", descricao: "", urlfoto: "" });
   };
 
+  // [c5 – Amanda] Excluir produto com confirmação: o botão único chama este handler para abrir o diálogo
   const handleExcluir = (id: string) => {
-    api.delete(`/produtos/${id}`)
-      .then(() => setProdutos(produtos.filter(p => p._id !== id)))
+    const produto = produtos.find(p => p._id === id) || null;
+    setProdutoParaDeletar(produto);
+  };
+
+  // [c5 – Amanda] (add-only) Confirmar exclusão via diálogo
+  const confirmarExclusao = () => {
+    if (!produtoParaDeletar) return;
+    api.delete(`/produtos/${produtoParaDeletar._id}`)
+      .then(() => {
+        setProdutos(produtos.filter(p => p._id !== produtoParaDeletar._id));
+        setProdutoParaDeletar(null);
+      })
       .catch(err => alert(err?.response?.data?.mensagem || "Erro ao excluir produto"));
   };
 
-  // niccole c2: utilitário para tentar múltiplos endpoints até encontrar dados de carrinhos
+  // [c5 – Amanda] Cancelar diálogo
+  const cancelarExclusaoDialog = () => setProdutoParaDeletar(null);
+
+  // [c2 – Nicole] utilitário para tentar múltiplos endpoints até encontrar dados de carrinhos
   async function tryGet<T = any>(paths: string[]): Promise<T | null> {
     for (const p of paths) {
       try {
@@ -136,7 +184,7 @@ function Adm() {
     return null;
   }
 
-  // niccole c2: calcular métricas a partir da lista de carrinhos
+  // [c2 – Nicole] calcular métricas a partir da lista de carrinhos
   function calcularMetricas(carrinhos: CarrinhoAdmin[]) {
     // usuários com carrinhos "ativos": consideramos carrinhos com pelo menos 1 item
     const usuariosAtivos = new Set<string>();
@@ -166,7 +214,7 @@ function Adm() {
     setRankingItens(ranking);
   }
 
-  // niccole c2: carregar métricas do backend (tenta endpoint direto de métricas e, se não houver, lista todos e calcula)
+  // [c2 – Nicole] carregar métricas do backend (tenta endpoint direto; senão, lista todos e calcula no front)
   async function carregarMetricasAdmin() {
     try {
       setMetricsLoading(true);
@@ -206,32 +254,74 @@ function Adm() {
 
   return (
     <div className={`adm-container ${role}`}>
-      <h1>Painel de Produtos</h1>
+      {/* [c7 – Paulo] Cabeçalho/branding e navegação do painel admin */}
+      <header className="site-header" aria-label="Cabeçalho do site">
+        <div className="brand">
+          <div className="logo" />
+          <span>MangáVerse Admin</span>
+        </div>
+        <nav>
+          <button onClick={() => navigate("/")}>Início</button>
+          <button onClick={() => navigate("/produtos")}>Mangás</button>
+          <button onClick={() => navigate("/carrinho")}>Carrinho</button>
+          <button onClick={() => navigate("/perfil")}>Perfil</button>
+        </nav>
+      </header>
 
-      {role === "admin" && (
-        <section className="adm-dashboard" aria-label="Dashboard Administrativo">
-          {/* niccole c2: Seção de métricas do admin - explica o que cada bloco mostra */}
-          <h2>Dashboard Administrativo — niccole c2</h2>
-          <p>
-            Esta seção mostra: quantidade de usuários com carrinhos ativos, a soma total dos valores de todos os carrinhos
-            e um ranking dos itens mais frequentes nos carrinhos.
-          </p>
+      {/* [c7 – Paulo] Seção "hero" de boas-vindas/atalhos no painel */}
+      <section className="hero-cover" aria-label="Capa de entrada">
+        <div className="hero-inner">
+          <div>
+            <h2 className="hero-title">Painel do Administrador</h2>
+            <p className="hero-sub">Gerencie mangás e visualize métricas do sistema — niccole c2</p>
+            <div className="hero-cta">
+              <button
+                className="btn-primary"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >Ver métricas</button>
+              <button
+                className="btn-secondary"
+                onClick={() => document.querySelector(".produtos-list")?.scrollIntoView({ behavior: "smooth" })}
+              >Ir aos produtos</button>
+            </div>
+          </div>
+          <div />
+        </div>
+      </section>
 
-          {metricsLoading && <p>Carregando métricas...</p>}
+
+    <h1>Painel de Produtos</h1>
+
+    {role === "admin" && (
+      <section className="adm-dashboard" aria-label="Dashboard Administrativo">
+        {/* [c2 – Nicole] Seção de métricas do admin */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <h2>Dashboard Administrativo </h2>
+          <button onClick={() => carregarMetricasAdmin()} disabled={metricsLoading} className="btn-secondary">
+            {metricsLoading ? "Atualizando..." : "Atualizar"}
+          </button>
+        </div>
+        <p>
+          Esta seção mostra: quantidade de usuários com carrinhos ativos, a soma total dos valores de todos os carrinhos
+          e um ranking dos itens mais frequentes nos carrinhos.
+        </p>
+
+        {metricsLoading && <p>Carregando métricas...</p>}
+        {metricsError && <p style={{ color: "red" }}>{metricsError}</p>}
           {metricsError && <p style={{ color: "red" }}>{metricsError}</p>}
 
           {!metricsLoading && !metricsError && (
             <div className="cards-metricas">
               <div className="card-metrica" aria-label="Usuários com carrinhos ativos">
-                <strong>Usuários com carrinhos ativos</strong> {/* niccole c2 */}
+                <strong>Usuários com carrinhos ativos</strong> {/* nicole c2 */}
                 <div>{activeUsersCount}</div>
               </div>
               <div className="card-metrica" aria-label="Soma de todos os carrinhos">
-                <strong>Total dos carrinhos</strong> {/* niccole c2 */}
+                <strong>Total dos carrinhos</strong> {/* nicole c2 */}
                 <div>R$ {totalCartValue.toFixed(2)}</div>
               </div>
               <div className="card-metrica" aria-label="Ranking de itens mais presentes nos carrinhos">
-                <strong>Top itens nos carrinhos</strong> {/* niccole c2 */}
+                <strong>Top itens nos carrinhos</strong> {/* nicole c2 */}
                 {rankingItens.length === 0 ? (
                   <div>Nenhum item encontrado</div>
                 ) : (
@@ -249,7 +339,7 @@ function Adm() {
         </section>
       )}
 
-      {/* Formulário só aparece para admin */}
+      {/* [c3 – Guilherme | c4 – Guilherme] Formulário de criação/edição de produtos (somente admin) */}
       {role === "admin" && (
         <form className="adm-form" onSubmit={editandoId ? handleSalvar : handleAdicionar}>
           <input type="text" name="nome" placeholder="Nome" value={form.nome} onChange={handleChange} required />
@@ -263,6 +353,21 @@ function Adm() {
         </form>
       )}
 
+      {/* [c5 – Amanda] (add-only) Dialog de confirmação de exclusão */}
+      {produtoParaDeletar && (
+        <div className="confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmarTitulo">
+          <div className="dialog-content">
+            <h3 id="confirmarTitulo">Confirmar Exclusão</h3>
+            <p>Tem certeza que deseja excluir o produto "{produtoParaDeletar.nome}"?</p>
+            <div className="dialog-actions">
+              <button onClick={confirmarExclusao}>Confirmar</button>
+              <button onClick={cancelarExclusaoDialog}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [c5 – Amanda | c6 – Amanda] Listagem de produtos e ação de exclusão */}
       <div className="produtos-list">
         {produtos.map(prod => (
           <div key={prod._id} className="produto-card">
@@ -281,13 +386,12 @@ function Adm() {
           </div>
         ))}
       </div>
+      <footer className="site-footer" aria-label="Rodapé">
+        <p>© 2025 MangáVerse — Todos os direitos reservados.</p>
+      </footer>
     </div>
   );
-//nicole C2
-  //Criar ou modificar área de administração acessível apenas por usuário ADMIN para a tarefa de 
-  // Mostrar a quantidade de usuários com carrinhos ativos no sistema e mostrar a soma de todos os 
-  // valores dos carrinhos que estão criados. 
-  // Mostrando um ranking dos itens que mais aparece nos carrinhos.
+
   
 }
 

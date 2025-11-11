@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api/api";
-import "./Carrinho.css"; // importa o CSS 💅
+import "./Carrinho.css";
 
 interface CarrinhoItem {
   _id: string;
@@ -27,15 +27,18 @@ function Carrinho() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // [A1 – Nicole] Proteção de rota: exige login antes de acessar o carrinho
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token || token === "undefined" || token === "null") {
+      localStorage.removeItem("token"); // Limpa o token inválido
       const mensagem = encodeURIComponent("Faça login para acessar seu carrinho.");
       const redirect = encodeURIComponent(location.pathname + location.search);
       navigate(`/login?mensagem=${mensagem}&redirect=${redirect}`, { replace: true });
       return;
     }
 
+    // [Carregar carrinho] Busca carrinho do usuário autenticado
     api
       .get<CarrinhoResponse>("/carrinho", {
         headers: { Authorization: `Bearer ${token}` },
@@ -63,34 +66,79 @@ function Carrinho() {
       });
   }, [navigate, location]);
 
+  // [B4 – Amanda] Filtro de itens por nome
   const itensFiltrados = useMemo(() => {
     const f = filtro.trim().toLowerCase();
     if (!f) return itens;
     return itens.filter((i) => i.produto.nome.toLowerCase().includes(f));
   }, [filtro, itens]);
 
+  // [B2 – Paulo] Alterar quantidade do item com validações melhoradas
   function atualizarQuantidade(itemId: string, novaQtd: number) {
     if (novaQtd <= 0) return;
+    if (!carrinhoId) return alert("Carrinho não encontrado");
 
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined" || token === "null") {
+      const mensagem = encodeURIComponent("Faça login para atualizar o carrinho.");
+      const redirect = encodeURIComponent(location.pathname);
+      navigate(`/login?mensagem=${mensagem}&redirect=${redirect}`);
+      return;
+    }
+
+    const item = itens.find((i) => i._id === itemId);
+    if (!item) return;
+
+    const quantidadeAnterior = item.quantidade;
+
+    // Atualiza o estado otimisticamente
+    setItens((prev) =>
+      prev.map((i) => (i._id === itemId ? { ...i, quantidade: novaQtd } : i))
+    );
+
+    // Faz a requisição para o backend
     api
-      .put(`/carrinho/${itemId}`, { quantidade: novaQtd })
-      .then(() => {
-        setItens((prev) =>
-          prev.map((i) => (i._id === itemId ? { ...i, quantidade: novaQtd } : i))
-        );
+      .put(`/carrinho/${carrinhoId}`, {
+        produtoId: item.produto._id,
+        quantidade: novaQtd,
       })
-      .catch(() => alert("Erro ao atualizar quantidade"));
+      .then(() => {
+        console.log("Quantidade atualizada com sucesso");
+      })
+      .catch((error) => {
+        // Em caso de erro, reverte a alteração
+        setItens((prev) =>
+          prev.map((i) =>
+            i._id === itemId ? { ...i, quantidade: quantidadeAnterior } : i
+          )
+        );
+        console.error("Erro ao atualizar quantidade:", error);
+        alert(error?.response?.data?.mensagem || "Erro ao atualizar quantidade");
+      });
   }
 
+  // [B1 – Nicole] Remover item do carrinho
   function removerItem(itemId: string) {
     if (!carrinhoId) return alert("Carrinho não encontrado");
+
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined" || token === "null") {
+      const mensagem = encodeURIComponent("Faça login para remover itens.");
+      const redirect = encodeURIComponent(location.pathname);
+      navigate(`/login?mensagem=${mensagem}&redirect=${redirect}`);
+      return;
+    }
 
     api
       .delete(`/carrinho/${carrinhoId}/item/${itemId}`)
       .then(() => setItens((prev) => prev.filter((i) => i._id !== itemId)))
-      .catch(() => alert("Erro ao remover item"));
+      .catch((error) => {
+        console.error("Erro ao remover item:", error);
+        alert(error?.response?.data?.mensagem || "Erro ao remover item");
+      });
   }
 
+  // [B5 – Amanda] Total atualizado do carrinho
   const total = useMemo(
     () => itens.reduce((acc, i) => acc + Number(i.produto.preco) * i.quantidade, 0),
     [itens]
@@ -98,13 +146,19 @@ function Carrinho() {
 
   return (
     <div className="carrinho-page">
-      {/* 🟣 Cabeçalho */}
+      {/* Cabeçalho visual do carrinho */}
       <header className="header">
-        <h1 className="logo">📚 MangáVerse</h1>
+        <h1 className="logo">MangáVerse</h1>
         <nav className="menu">
-          <button onClick={() => navigate("/")} className="menu-btn">Início</button>
-          <button onClick={() => navigate("/produtos")} className="menu-btn">Mangás</button>
-          <button onClick={() => navigate("/perfil")} className="menu-btn">Perfil</button>
+          <button onClick={() => navigate("/")} className="menu-btn">
+            Início
+          </button>
+          <button onClick={() => navigate("/produtos")} className="menu-btn">
+            Mangás
+          </button>
+          <button onClick={() => navigate("/perfil")} className="menu-btn">
+            Perfil
+          </button>
         </nav>
       </header>
 
@@ -118,7 +172,9 @@ function Carrinho() {
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
           />
-          <button className="voltar-btn" onClick={() => navigate(-1)}>⬅ Voltar</button>
+          <button className="voltar-btn" onClick={() => navigate(-1)}>
+            ⬅ Voltar
+          </button>
         </div>
 
         {itensFiltrados.length === 0 ? (
@@ -126,9 +182,9 @@ function Carrinho() {
         ) : (
           <div className="lista-itens">
             {itensFiltrados.map((item) => (
-              <div key={item._id} className="card-item">
+              <div key={String(item._id)} className="card-item">
                 <img
-                  src={item.produto.urlfoto || "https://via.placeholder.com/84"}
+                  src={item.produto.urlfoto || "/fallback-avatar.svg"}
                   alt={item.produto.nome}
                 />
                 <div className="info-item">
@@ -136,7 +192,11 @@ function Carrinho() {
                   <p>Preço: R$ {Number(item.produto.preco).toFixed(2)}</p>
 
                   <div className="quantidade">
-                    <button onClick={() => atualizarQuantidade(item._id, item.quantidade - 1)}>
+                    <button
+                      onClick={() =>
+                        atualizarQuantidade(item._id, item.quantidade - 1)
+                      }
+                    >
                       -
                     </button>
                     <input
@@ -147,7 +207,11 @@ function Carrinho() {
                         atualizarQuantidade(item._id, Number(e.target.value))
                       }
                     />
-                    <button onClick={() => atualizarQuantidade(item._id, item.quantidade + 1)}>
+                    <button
+                      onClick={() =>
+                        atualizarQuantidade(item._id, item.quantidade + 1)
+                      }
+                    >
                       +
                     </button>
                   </div>
@@ -165,6 +229,7 @@ function Carrinho() {
         )}
 
         <h2 className="total">Total: R$ {total.toFixed(2)}</h2>
+        {/* [B3 – Guilherme] (pendente) Botão para excluir o carrinho inteiro */}
       </main>
 
       <footer className="footer">
