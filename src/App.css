@@ -59,3 +59,59 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Lista de produtos */
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.produto-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.produto-card h2 {
+  margin: 6px 0 4px;
+  font-size: 18px;
+}
+
+.produto-card p {
+  margin: 4px 0;
+  color: var(--muted);
+}
+
+.produto-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 8px 0;
+}
+
+.produto-card button {
+  width: 100%;
+}
+
+/* Banner de login requerido */
+.login-required-banner {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: rgba(124,58,237,0.12);
+  color: var(--text);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.login-required-banner p {
+  margin: 0;
+}

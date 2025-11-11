@@ -66,3 +66,117 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* ========================= */
+/* Design System (Global)    */
+/* ========================= */
+:root {
+  --bg: #0f1020;
+  --bg-soft: #151732;
+  --text: #e9e7ff;
+  --muted: #c9c6e8;
+  --primary-600: #5b22b2;
+  --primary-500: #7c3aed;
+  --primary-400: #a78bfa;
+  --accent: #f472b6;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(167,139,250,0.3);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* Base reset/lightweight normalize */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  background: radial-gradient(1200px 600px at 80% -10%, rgba(124,58,237,0.15), transparent),
+              radial-gradient(1000px 500px at -10% 20%, rgba(244,114,182,0.12), transparent),
+              linear-gradient(180deg, var(--bg), #12122a);
+  color: var(--text);
+  display: block; /* sobrescreve layout de boilerplate */
+}
+
+#root {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Tipografia utilitária */
+h1, h2, h3 { margin: 0 0 10px; }
+p { margin: 0 0 10px; color: var(--muted); }
+
+/* Links e botões padrão */
+.btn, button, [type="button"], [type="submit"] {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.btn.secondary {
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text);
+}
+
+/* Containers e cartões genéricos */
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.card {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Inputs padrão */
+input[type="text"], input[type="password"], input[type="number"], input[type="email"], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+/* Header e Footer utilitários */
+.site-header, .site-footer, .glass {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  box-shadow: var(--shadow);
+}
+
+/* Helpers */
+.row { display: flex; gap: 10px; align-items: center; }
+.space-between { justify-content: space-between; }
+.right { justify-content: flex-end; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+
+/* Toast/banner padrão */
+.banner {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(124,58,237,0.12);
+  color: var(--text);
+}
+.banner.warning { background: rgba(244, 114, 182, 0.14); }
+.banner.error { background: rgba(239, 68, 68, 0.18); }
+
