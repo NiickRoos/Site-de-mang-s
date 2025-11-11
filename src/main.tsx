@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route}from 'react-router-dom'
 import Login from './componentes/login/login.tsx'
 import Adm from './admin/adm.tsx'
 import Carrinho from './componentes/carrinho/Carrinho.tsx'
-import Perfil from './componentes/perfil/Perfil.tsx'
 
 
 
@@ -18,7 +17,6 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/login" element={<Login/>} />
         <Route path="/adm" element={<Adm/>} />
         <Route path="/carrinho" element={<Carrinho/>} />
-        <Route path="/perfil" element={<Perfil/>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

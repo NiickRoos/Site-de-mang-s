@@ -153,17 +153,13 @@ function Carrinho() {
           <button onClick={() => navigate("/")} className="menu-btn">
             Início
           </button>
-          <button onClick={() => navigate("/produtos")} className="menu-btn">
-            Mangás
-          </button>
-          <button onClick={() => navigate("/perfil")} className="menu-btn">
-            Perfil
-          </button>
+          
+          
         </nav>
       </header>
 
       <main className="carrinho-container">
-        <h2 className="titulo">🛒 Meu Carrinho</h2>
+        <h2 className="titulo"> Meu Carrinho</h2>
 
         <div className="filtro-container">
           <input

@@ -1,53 +1,91 @@
+/* === FONTES E CORES (Deve ser consistente com App.css/index.css) === */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Cores (Dark Cyber/Neon) */
+  --bg-main: #0a0116; /* Fundo mais escuro */
+  --bg-card: #1c0638; /* Fundo do card/seções, roxo escuro */
+  --text-light: #f0e9ff; /* Texto principal claro */
+  --text-muted: #c8b8f9; /* Texto secundário, roxo claro */
+  --accent: #5eff00; /* Destaque Primário (Verde Neon) */
+  --accent-hover: #9aff4d; /* Destaque Hover (Verde Limão) */
+  --danger: #ff4d6d; /* Cor de perigo */
+  
+  /* Efeitos e Tipografia */
+  --shadow: 0 4px 20px rgba(94, 255, 0, 0.25); /* Sombra Neon (Verde) */
+  --radius: 12px;
+  --transition: 0.3s ease;
+  --font-title: 'Oxanium', sans-serif;
+  --font-primary: 'Inter', sans-serif;
+}
+
+/* === BODY E ESTRUTURA === */
 body {
-  background-color: #f5f3ff;
-  font-family: "Poppins", sans-serif;
+  background-color: var(--bg-main); /* Fundo escuro */
+  font-family: var(--font-primary);
   margin: 0;
 }
 
+/* === HEADER / CABEÇALHO === */
 .header {
-  background-color: #5b2ca2;
-  color: white;
+  background-color: var(--bg-card); /* Roxo escuro */
+  color: var(--text-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid var(--accent);
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: bold;
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(94, 255, 0, 0.6);
 }
 
 .menu-btn {
   background: transparent;
-  color: white;
+  color: var(--text-light);
   border: none;
   margin-left: 16px;
   font-size: 16px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: var(--transition);
+  padding: 8px 12px;
+  border-radius: 6px;
 }
 
 .menu-btn:hover {
-  color: #ffd6ff;
-  text-decoration: underline;
+  color: var(--accent-hover);
+  background-color: rgba(94, 255, 0, 0.1);
+  box-shadow: 0 0 5px var(--accent);
 }
 
+/* === CONTAINER PRINCIPAL DO CARRINHO === */
 .carrinho-container {
   max-width: 900px;
   margin: 40px auto;
-  background: white;
-  border-radius: 12px;
+  background: var(--bg-card); /* Fundo do container roxo escuro */
+  border-radius: var(--radius);
   padding: 30px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), 0 0 10px rgba(200, 184, 249, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .titulo {
-  color: #4b0082;
+  font-family: var(--font-title);
+  color: var(--accent-hover);
+  text-shadow: 0 0 10px rgba(94, 255, 0, 0.4);
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  letter-spacing: 1px;
 }
 
+/* === FILTRO E BUSCA === */
 .filtro-container {
   display: flex;
   justify-content: space-between;
@@ -56,26 +94,39 @@ body {
 
 .filtro-container input {
   flex: 1;
-  padding: 8px;
+  padding: 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--text-muted);
+  background: #0a0116; /* Fundo do input bem escuro */
+  color: var(--text-light);
   margin-right: 10px;
 }
 
+.filtro-container input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 5px var(--accent);
+}
+
 .voltar-btn {
-  background-color: #6a0dad;
-  color: white;
+  background-color: var(--accent);
+  color: var(--bg-main); /* Texto escuro no neon */
   border: none;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.3s;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: var(--transition);
+  box-shadow: 0 0 5px var(--accent);
 }
 
 .voltar-btn:hover {
-  background-color: #8a2be2;
+  background-color: var(--accent-hover);
+  box-shadow: 0 0 15px var(--accent);
 }
 
+/* === LISTA DE ITENS === */
 .lista-itens {
   display: flex;
   flex-direction: column;
@@ -85,10 +136,11 @@ body {
 .card-item {
   display: flex;
   align-items: center;
-  background: #f9f7ff;
+  background: #280a50; /* Fundo do item levemente mais claro que o container */
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  border-left: 5px solid var(--text-muted);
 }
 
 .card-item img {
@@ -96,55 +148,143 @@ body {
   height: 84px;
   object-fit: cover;
   border-radius: 8px;
+  border: 2px solid var(--accent);
 }
 
 .info-item {
   flex: 1;
   margin-left: 16px;
+  text-align: left;
 }
 
+.info-item h3 {
+    color: var(--text-light);
+    margin: 0 0 4px 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.info-item p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+
+/* === CONTROLE DE QUANTIDADE === */
 .quantidade {
   display: flex;
   align-items: center;
   margin-top: 8px;
+  margin-left: 20px; /* Separar um pouco mais da info */
 }
 
 .quantidade button {
-  background-color: #6a0dad;
-  color: white;
-  border: none;
+  background-color: #502095; /* Cor do botão roxo/escuro */
+  color: var(--text-light);
+  border: 1px solid var(--text-muted);
   padding: 4px 10px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.quantidade button:hover {
+  background-color: var(--accent);
+  color: var(--bg-main);
+  border-color: var(--accent);
 }
 
 .quantidade input {
-  width: 60px;
+  width: 50px;
   text-align: center;
   margin: 0 8px;
+  background: #0a0116;
+  color: var(--accent-hover);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
+  padding: 4px 0;
 }
 
+/* === BOTÃO DE REMOVER === */
 .remover-btn {
-  margin-top: 10px;
-  background-color: #ff4444;
+  margin-top: 0; /* Alinhamento melhorado */
+  margin-left: 20px;
+  background-color: var(--danger);
   color: white;
   border: none;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  text-transform: uppercase;
 }
 
+.remover-btn:hover {
+  background-color: #ff7f99;
+  box-shadow: 0 0 8px var(--danger);
+}
+
+/* === TOTAL DO CARRINHO === */
 .total {
   text-align: right;
-  color: #4b0082;
-  margin-top: 24px;
+  color: var(--accent);
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px dashed var(--text-muted);
 }
 
+/* === FOOTER === */
 .footer {
   text-align: center;
-  background-color: #5b2ca2;
-  color: white;
+  background-color: var(--bg-card);
+  color: var(--text-muted);
   padding: 16px;
   margin-top: 40px;
-  border-top: 3px solid #c8a2ff;
+  border-top: 3px solid var(--accent);
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+    .header {
+        padding: 16px 20px;
+    }
+    .titulo {
+        font-size: 2rem;
+    }
+    .carrinho-container {
+        margin: 20px;
+        padding: 20px;
+    }
+    .filtro-container {
+        flex-direction: column;
+    }
+    .filtro-container input {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    .card-item {
+        flex-wrap: wrap;
+        text-align: center;
+        justify-content: center;
+    }
+    .card-item img {
+        margin-bottom: 10px;
+    }
+    .info-item {
+        margin-left: 0;
+        text-align: center;
+        width: 100%;
+    }
+    .quantidade, .remover-btn {
+        margin-top: 15px;
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
 }
