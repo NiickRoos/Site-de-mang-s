@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/api";
-import "./Adm.css";
+import "./adm.css";
 
 interface Produto {
   _id: string;

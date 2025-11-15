@@ -88,6 +88,25 @@ function App() {
             [A5 – Guilherme] (pendente) Local para exibir nome/role do usuário no topo */}
         {localStorage.getItem('token') && (
           <>
+            {(() => {
+              try {
+                const t = localStorage.getItem('token');
+                if (!t) return null;
+                const payload = JSON.parse(atob(t.split('.')[1]));
+                if (payload?.role === 'admin') {
+                  return (
+                    <button
+                      style={{ marginRight: 12 }}
+                      className="login-button"
+                      onClick={() => navigate('/adm')}
+                    >
+                      Painel Admin
+                    </button>
+                  );
+                }
+              } catch {}
+              return null;
+            })()}
             <Link style={{ marginLeft: 12 }} className="login-button" to="/carrinho">Meu Carrinho</Link>
             <button
               style={{ marginLeft: 12 }}
