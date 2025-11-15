@@ -34,11 +34,12 @@ function Adm() {
   const [form, setForm] = useState({ nome: "", preco: "", descricao: "", urlfoto: "" });
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [role, setRole] = useState<string>("user");
-  const [adminNome, setAdminNome] = useState<string>(""); // ✅ nome do administrador
+  const [adminNome, setAdminNome] = useState<string>(""); //  nome do administrador
 
-  const [activeUsersCount, setActiveUsersCount] = useState<number>(0);
-  const [totalCartValue, setTotalCartValue] = useState<number>(0);
-  const [rankingItens, setRankingItens] = useState<{ produtoId: string; nome?: string; count: number }[]>([]);
+  // [C2 – Nicole] Estados para métricas da área de administração
+  const [activeUsersCount, setActiveUsersCount] = useState<number>(0); // Quantidade de usuários com carrinhos ativos
+  const [totalCartValue, setTotalCartValue] = useState<number>(0); // Soma de todos os valores dos carrinhos
+  const [rankingItens, setRankingItens] = useState<{ produtoId: string; nome?: string; count: number }[]>([]); // Ranking dos itens mais frequentes
   const [metricsLoading, setMetricsLoading] = useState<boolean>(false);
   const [metricsError, setMetricsError] = useState<string>("");
 
@@ -55,7 +56,7 @@ function Adm() {
       return;
     }
 
-    // ✅ Decodifica o token e pega nome + role
+    //  Decodifica o token e pega nome + role
     const payload = JSON.parse(atob(token.split(".")[1]));
     setRole(payload.role);
     setAdminNome(payload.nome || "Administrador"); // pega nome do JWT
@@ -167,34 +168,40 @@ function Adm() {
     return null;
   }
 
+  // [C2 – Nicole] Função principal para calcular métricas da área de administração
+  // Calcula: usuários ativos, soma total dos carrinhos e ranking de itens mais frequentes
   function calcularMetricas(carrinhos: CarrinhoAdmin[]) {
-    const usuariosAtivos = new Set<string>();
-    let somaTotal = 0;
-    const freq = new Map<string, { produtoId: string; nome?: string; count: number }>();
+    const usuariosAtivos = new Set<string>(); // Conjunto para contar usuários únicos com carrinhos ativos
+    let somaTotal = 0; // Acumulador para soma total de todos os carrinhos
+    const freq = new Map<string, { produtoId: string; nome?: string; count: number }>(); // Map para contagem de itens
 
+    // [C2 – Nicole] Itera sobre todos os carrinhos para calcular métricas
     for (const c of carrinhos) {
       if (Array.isArray(c.itens) && c.itens.length > 0) {
+        // Adiciona usuário ao conjunto se tiver carrinho com itens
         if (c.usuarioId) usuariosAtivos.add(c.usuarioId);
+        // Processa cada item do carrinho
         for (const it of c.itens) {
           const preco = Number(it.precoUnitario ?? 0);
           const qtd = Number(it.quantidade ?? 0);
-          somaTotal += preco * qtd;
+          somaTotal += preco * qtd; // Soma valor total deste item ao acumulador
+
+          // [C2 – Nicole] Atualiza contagem no ranking de itens
           const key = it.produtoId;
-          if (!key) continue;
           const prev = freq.get(key) || { produtoId: key, nome: it.nome, count: 0 };
-          prev.count += qtd || 1;
-          if (!prev.nome && it.nome) prev.nome = it.nome;
-          freq.set(key, prev);
+          freq.set(key, { ...prev, count: prev.count + qtd });
         }
       }
     }
 
-    const ranking = Array.from(freq.values()).sort((a, b) => b.count - a.count).slice(0, 10);
-    setActiveUsersCount(usuariosAtivos.size);
-    setTotalCartValue(somaTotal);
-    setRankingItens(ranking);
+    // [C2 – Nicole] Atualiza estados com as métricas calculadas
+    setActiveUsersCount(usuariosAtivos.size); // Quantidade de usuários únicos com carrinhos ativos
+    setTotalCartValue(somaTotal); // Soma total de todos os valores dos carrinhos
+    setRankingItens(Array.from(freq.values()).sort((a, b) => b.count - a.count)); // Ranking ordenado por frequência
   }
 
+  // [C2 – Nicole] Função para carregar dados dos carrinhos do backend e calcular métricas
+  // Tenta múltiplas rotas da API para obter dados de carrinhos
   async function carregarMetricasAdmin() {
     try {
       setMetricsLoading(true);
@@ -218,6 +225,7 @@ function Adm() {
         "/carrinho/todos"
       ]);
       if (Array.isArray(todos)) {
+        // [C2 – Nicole] Calcula métricas com dados obtidos do backend
         calcularMetricas(todos);
         return;
       }
@@ -240,13 +248,14 @@ function Adm() {
         <nav>
           <button onClick={() => navigate("/")}>Início</button>
         </nav>
-        {/* ✅ Exibe o nome do administrador logado */}
+        {/*  Exibe o nome do administrador logado */}
         <div className="admin-nome">Bem-vindo, {adminNome} 👋</div>
       </header>
 
       <h1>Painel de Produtos</h1>
 
       {role === "admin" && (
+        // [C2 – Nicole] Área de administração acessível apenas por usuário ADMIN
         <section className="adm-dashboard">
           <h2>Dashboard Administrativo</h2>
           <button onClick={() => carregarMetricasAdmin()} disabled={metricsLoading} className="btn-secondary">
@@ -255,6 +264,7 @@ function Adm() {
           {metricsLoading && <p>Carregando métricas...</p>}
           {metricsError && <p style={{ color: "red" }}>{metricsError}</p>}
           {!metricsLoading && !metricsError && (
+            // [C2 – Nicole] Cards de métricas exibindo dados calculados
             <div className="cards-metricas">
               <div className="card-metrica">
                 <strong>Usuários com carrinhos ativos</strong>
