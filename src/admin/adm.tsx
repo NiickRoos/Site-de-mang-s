@@ -90,6 +90,8 @@ function Adm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // [C5 – Amanda] Formulário para cadastrar novos produtos (somente admin)
+  // Envia POST para /produtos com dados do formulário e atualiza estado local
   const handleAdicionar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     api.post<Produto>("/produtos", {
@@ -106,6 +108,8 @@ function Adm() {
       .catch(err => alert(err?.response?.data?.mensagem || "Erro ao adicionar produto"));
   };
 
+  // [C6 – Amanda] Botão "Editar produto" com formulário preenchido
+  // Envia PUT para /produtos/{id} com dados atualizados do produto
   const handleSalvar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editandoId) return;
@@ -124,6 +128,8 @@ function Adm() {
       .catch(err => alert(err?.response?.data?.mensagem || "Erro ao salvar produto"));
   };
 
+  // [C6 – Amanda] Preenche formulário com dados do produto para edição
+  // Seta editandoId e preenche campos do formulário com dados existentes
   const iniciarEdicao = (p: Produto) => {
     setEditandoId(p._id);
     setForm({ nome: p.nome, preco: String(p.preco), descricao: p.descricao, urlfoto: p.urlfoto });
@@ -274,6 +280,8 @@ function Adm() {
       )}
 
       {role === "admin" && (
+        // [C5 – Amanda] Formulário para cadastrar novos produtos (somente admin)
+        // Botão "Adicionar Produto" aparece quando editandoId é null
         <form className="adm-form" onSubmit={editandoId ? handleSalvar : handleAdicionar}>
           <input type="text" name="nome" placeholder="Nome" value={form.nome} onChange={handleChange} required />
           <input type="text" name="preco" placeholder="Preço" value={form.preco} onChange={handleChange} required />
@@ -308,6 +316,8 @@ function Adm() {
             <p>{prod.descricao}</p>
             <p>R$ {prod.preco.toFixed(2)}</p>
             {role === "admin" && (
+              // [C6 – Amanda] Botão "Editar produto" dentro do card do produto
+              // Botão "Editar" chama função iniciarEdicao que preenche formulário
               <div className="adm-actions">
                 <button onClick={() => iniciarEdicao(prod)}>Editar</button>
                 <button onClick={() => handleExcluir(prod._id)}>Excluir</button>
