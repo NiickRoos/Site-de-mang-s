@@ -14,20 +14,28 @@ type ProdutoType = {
 function App() {
   const [produtos, setProdutos] = useState<ProdutoType[]>([]);
   const [needLoginPrompt, setNeedLoginPrompt] = useState(false);
+  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('token'));
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 🔹 Atualiza authToken quando o login/logout for feito em outro componente
+  useEffect(() => {
+    const handler = () => setAuthToken(localStorage.getItem('token'));
+    window.addEventListener('auth-changed', handler as EventListener);
+    return () => window.removeEventListener('auth-changed', handler as EventListener);
+  }, []);
 
   // 🔹 Carrega produtos ao abrir a página
   useEffect(() => {
     api.get<ProdutoType[]>("/produtos")
-      .then((response: any) => setProdutos(response.data))
+      .then((response) => setProdutos(response.data))
       .catch((error) => {
         if (error.response) {
-          console.error(`Servidor respondeu mas com erro: ${error.response.data?.mensagem ?? error.message}`);
-          alert(`Servidor respondeu mas com erro: ${error.response.data?.mensagem ?? "Olhe o console do navegador para mais detalhes"}`);
+          console.error(`Erro do servidor: ${error.response.data?.mensagem ?? error.message}`);
+          alert(`Servidor respondeu mas com erro: ${error.response.data?.mensagem ?? "Veja o console para mais detalhes"}`);
         } else {
           console.error(`Erro Axios: ${error.message}`);
-          alert(`Servidor não respondeu, vc ligou o backend? Erro do axios: ${error.message ?? "Erro desconhecido"}`);
+          alert(`Servidor não respondeu. O backend está ligado? Erro: ${error.message}`);
         }
       });
   }, []);
@@ -59,35 +67,52 @@ function App() {
         headers: { Authorization: `Bearer ${token}` },
       }
     )
-      .then(() => alert("Produto adicionado corretamente"))
+      .then(() => alert("Produto adicionado corretamente!"))
       .catch((error) => {
         if (error.response) {
-          console.error(`Servidor respondeu mas com erro: ${error.response.data?.message ?? error.message}`);
-          alert(`Servidor respondeu mas com erro: ${error.response.data?.message ?? "Olhe o console do navegador para mais detalhes"}`);
+          console.error(`Erro do servidor: ${error.response.data?.message ?? error.message}`);
+          alert(`Erro: ${error.response.data?.message ?? "Veja o console para mais detalhes"}`);
         } else {
           console.error(`Erro Axios: ${error.message}`);
-          alert(`Servidor não respondeu, vc ligou o backend? Erro do axios: ${error.message ?? "Erro desconhecido"}`);
+          alert(`Servidor não respondeu. O backend está ligado? Erro: ${error.message}`);
         }
       });
+  }
+
+  // 🔹 Logout do usuário
+  function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userType');
+    setAuthToken(null);
+    setNeedLoginPrompt(false);
+
+    try {
+      window.dispatchEvent(new CustomEvent('auth-changed'));
+    } catch {}
+
+    navigate('/');
   }
 
   return (
     <>
       <div className="top-actions">
-        {!localStorage.getItem('token') && (
+        {!authToken && (
           <Link className="login-button" to="/login">Login</Link>
         )}
-        {localStorage.getItem('token') && (
+
+        {authToken && (
           <>
-            <Link style={{ marginLeft: 12 }} className="login-button" to="/carrinho">Meu Carrinho</Link>
+            <Link
+              style={{ marginLeft: 12 }}
+              className="login-button"
+              to="/carrinho"
+            >
+              Meu Carrinho
+            </Link>
             <button
               style={{ marginLeft: 12 }}
               className="login-button"
-              onClick={() => {
-                localStorage.removeItem('token');
-                setNeedLoginPrompt(false);
-                navigate('/');
-              }}
+              onClick={handleLogout}
             >
               Sair
             </button>
