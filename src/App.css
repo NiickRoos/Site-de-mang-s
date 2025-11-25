@@ -1,59 +1,180 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* === FONTES: Oxanium para Títulos, Inter para corpo de texto === */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Cores (Dark Cyber/Neon) */
+  --bg-main: #0a0116; /* Fundo mais escuro */
+  --bg-card: #1c0638; /* Fundo do card/seções, roxo escuro */
+  --text-light: #f0e9ff; /* Texto principal claro */
+  --text-muted: #c8b8f9; /* Texto secundário, roxo claro */
+  --accent: #5eff00; /* Destaque Primário (Verde Neon) */
+  --accent-hover: #9aff4d; /* Destaque Hover (Verde Limão) */
+  --danger: #ff4d6d; /* Cor de perigo */
+  
+  /* Efeitos e Tipografia */
+  --shadow: 0 4px 20px rgba(94, 255, 0, 0.25); /* Sombra Neon (Verde) */
+  --radius: 12px;
+  --transition: 0.3s ease;
+  --font-title: 'Oxanium', sans-serif;
+  --font-primary: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* === BODY E CONTAINER GERAL === */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-light);
+  font-family: var(--font-primary);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  /* Efeito de fundo sutil (opcional) */
+  background-image: radial-gradient(circle at center, rgba(94, 255, 0, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Título Principal */
+h1 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  font-size: 3rem;
+  margin: 2rem auto 2rem;
   text-align: center;
+  color: var(--accent); /* Título em neon */
+  text-shadow: 0 0 15px rgba(94, 255, 0, 0.6);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-/* Top actions bar */
+/* === AÇÕES DO TOPO (BOTÕES) === */
 .top-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1rem;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(28, 6, 56, 0.8); /* Fundo semi-transparente para o topo */
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-.login-button {
-  background: #646cff;
-  color: white;
-  padding: 0.5rem 1rem;
+.login-button,
+.top-actions button {
+  background: transparent;
+  border: 2px solid var(--accent);
   border-radius: 6px;
-  text-decoration: none;
+  padding: 8px 16px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
+  text-decoration: none; /* Para o <Link> */
+  display: inline-block;
+  text-transform: uppercase;
 }
 
-.login-button:hover {
-  background: #535bf2;
+.login-button:hover,
+.top-actions button:hover {
+  background: var(--accent);
+  color: var(--bg-main); /* Texto escuro no hover */
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Botão Sair - Diferenciação */
+.top-actions button.login-button:last-of-type {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.top-actions button.login-button:last-of-type:hover {
+  background: var(--danger);
+  color: white;
+  box-shadow: 0 0 10px var(--danger);
+}
+
+/* === BANNER DE LOGIN OBRIGATÓRIO === */
+.login-required-banner {
+  background: var(--bg-card);
+  border: 2px solid var(--danger);
+  padding: 1rem 2rem;
+  margin: 1rem 2rem;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: 0 0 15px rgba(255, 77, 109, 0.5);
+}
+
+.login-required-banner p {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: var(--text-light);
+}
+
+.login-required-banner button {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.login-required-banner button:hover {
+  background: #ff7f99;
+}
+
+/* === LISTA DE PRODUTOS (GRID) === */
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  padding: 2rem;
+  justify-items: center;
+  max-width: 1400px;
+  margin: 0 auto 4rem;
+}
+
+.produto-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+  text-align: center;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.produto-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(94, 255, 0, 0.2);
+}
+
+.produto-card h2 {
+  font-family: var(--font-title);
+  color: var(--accent-hover);
+  font-size: 1.5rem;
+  margin: 0 0 10px 0;
+  text-transform: capitalize;
+}
+
+.produto-card p {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 5px 0;
+  text-align: center;
+}
+
+/* Preço em destaque */
+.produto-card p:first-of-type {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 1.2rem;
+  margin-top: 10px;
 }
 
 .read-the-docs {

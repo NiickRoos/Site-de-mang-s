@@ -1,94 +1,457 @@
+/* === FONTES NOVAS: Oxanium para Títulos, Inter para corpo de texto === */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Cores de Fundo (Dark Cyber/Tech) */
+  --bg-main: #0a0116; /* Fundo mais escuro, quase preto */
+  --bg-card: #1c0638; /* Fundo do card/seções, roxo escuro */
+  --bg-hero: linear-gradient(135deg, #4d0087, #8a2be2); /* Gradiente vibrante */
+  
+  /* Cores de Texto e Destaque */
+  --text-light: #f0e9ff; /* Texto principal claro */
+  --text-muted: #c8b8f9; /* Texto secundário, roxo claro */
+  --accent: #5eff00; /* Destaque Primário (Verde Neon) */
+  --accent-hover: #9aff4d; /* Destaque Hover (Verde Limão) */
+  --danger: #ff4d6d; /* Cor de perigo (vermelho) */
+  --success: #00ff7f; /* Cor de sucesso (verde esmeralda) */
+  
+  /* Efeitos e Medidas */
+  --shadow: 0 4px 20px rgba(94, 255, 0, 0.25); /* Sombra Neon (Verde) */
+  --radius: 12px;
+  --transition: 0.3s ease;
+  --font-title: 'Oxanium', sans-serif;
+  --font-primary: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* === REINICIALIZAÇÃO E Fundo === */
+html, body {
+  height: 100%; 
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: var(--bg-main);
+  color: var(--text-light);
+  font-family: var(--font-primary);
+  /* Efeito de fundo sutil (opcional) */
+  background-image: radial-gradient(circle at center, rgba(94, 255, 0, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* === CONTAINER GERAL === */
 .adm-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: sans-serif;
-}
-
-.adm-container h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-/* Formulário admin */
-.adm-form {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 30px;
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 8px;
-  background: #f9f9f9;
+}
+
+/* === HEADER === */
+.site-header {
+  background: var(--bg-hero);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-light);
+  box-shadow: 0 0 15px rgba(94, 255, 0, 0.4); /* Sombra mais destacada */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.5rem; /* Aumenta um pouco */
+  font-family: var(--font-title);
+  letter-spacing: 1px;
+}
+
+/* 🟢 NOVO ESTILO DE LOGO: Quadrado futurista com borda neon */
+.site-header .brand .logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px; /* Quadrado com cantos arredondados */
+  background: var(--bg-card); /* Fundo roxo escuro */
+  border: 2px solid var(--accent); /* Borda verde neon */
+  box-shadow: 0 0 12px var(--accent), 0 0 20px var(--accent-hover);
+  flex-shrink: 0;
+  /* Remove a URL da imagem de fundo para dar lugar a um ícone/estilo CSS, 
+     ou use uma imagem PNG/SVG com fundo transparente se preferir. */
+  /* background: url("caminho/para/logo.png") center/cover no-repeat; */
+}
+
+/* Nome do Admin */
+.admin-nome {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Botões no Header */
+.site-header nav {
+  display: flex;
+  align-items: center;
+}
+.site-header nav button {
+  background: transparent;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  padding: 8px 16px;
+  margin-left: 10px;
+  color: var(--accent); /* Texto na cor neon */
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.site-header nav button:hover {
+  background: var(--accent);
+  color: var(--bg-main); /* Texto escuro no hover */
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* === TÍTULOS PRINCIPAIS === */
+.adm-container h1 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 2.5rem;
+  margin: 2rem auto 1rem;
+  text-align: center;
+  color: var(--text-light);
+  text-shadow: 0 0 10px rgba(94, 255, 0, 0.5); /* Sombra neon */
+}
+
+/* === DASHBOARD E MÉTRICAS === */
+.adm-dashboard {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  margin: 2rem auto;
+  padding: 2.5rem;
+  box-shadow: var(--shadow);
+  max-width: 1200px;
+  width: 90%;
+  text-align: center;
+  border: 1px solid rgba(94, 255, 0, 0.2);
+}
+
+.adm-dashboard h2 {
+  font-family: var(--font-title);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: var(--accent-hover);
+  text-shadow: 0 0 8px rgba(94, 255, 0, 0.4);
+}
+
+.cards-metricas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.card-metrica {
+  flex: 1;
+  min-width: 280px;
+  background: rgba(255, 255, 255, 0.03); /* Fundo mais sutil */
+  border: 1px solid rgba(94, 255, 0, 0.15); /* Borda sutil neon */
+  padding: 1.8rem;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: all var(--transition);
+}
+
+.card-metrica:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(94, 255, 0, 0.4);
+  background: rgba(94, 255, 0, 0.05); /* Pequeno brilho neon no hover */
+}
+
+.card-metrica strong {
+  display: block;
+  color: var(--accent-hover);
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: var(--font-title);
+}
+
+.card-metrica div {
+  font-size: 2rem;
+  margin-top: 10px;
+  color: var(--accent);
+}
+
+.card-metrica ol {
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
+  margin-top: 10px;
+}
+.card-metrica ol li {
+  margin: 5px 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+.card-metrica ol li:before {
+  content: '⚡'; /* Ícone de raio */
+  margin-right: 8px;
+  color: var(--accent);
+}
+
+/* === FORMULÁRIO === */
+.adm-form {
+  background: var(--bg-card);
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 1px solid rgba(94, 255, 0, 0.2);
 }
 
 .adm-form input,
 .adm-form textarea {
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(94, 255, 0, 0.1); /* Borda de input sutil */
+  border-radius: 8px;
+  color: var(--text-light);
+  padding: 12px;
+  font-size: 1rem;
+  transition: border-color var(--transition);
+}
+.adm-form input:focus,
+.adm-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 5px var(--accent);
+  outline: none;
 }
 
 .adm-form button {
-  padding: 10px;
-  background: #4caf50;
-  color: white;
-  font-weight: bold;
+  background: var(--accent);
+  color: var(--bg-main); /* Texto escuro no botão neon */
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 700;
   cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
 }
-
 .adm-form button:hover {
-  background: #45a049;
+  background: var(--accent-hover);
+  box-shadow: 0 0 15px var(--accent-hover);
 }
 
-/* Lista de produtos */
+/* === LISTA DE PRODUTOS === */
 .produtos-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  padding: 2rem;
+  justify-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .produto-card {
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 6px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
   text-align: center;
-  background: #fff;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition), box-shadow var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.produto-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(94, 255, 0, 0.2);
 }
 
 .produto-card img {
   width: 100%;
-  height: 150px;
+  height: 350px; /* Altura um pouco maior */
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-bottom: 15px;
+  border: 1px solid rgba(94, 255, 0, 0.15);
 }
 
 .produto-card h3 {
-  margin: 10px 0 5px;
+  color: var(--accent-hover);
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  margin: 10px 0;
+  min-height: 50px;
 }
 
 .produto-card p {
-  margin: 5px 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  text-align: left;
+  line-height: 1.5;
+  flex-grow: 1;
 }
 
-/* Botões admin */
+.produto-card span {
+  display: block;
+  margin-top: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+
+.adm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
 .adm-actions button {
-  padding: 6px 12px;
-  background: #f44336;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background: transparent;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  padding: 8px 16px;
   cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
 }
-
 .adm-actions button:hover {
-  background: #d32f2f;
+  background: var(--accent);
+  color: var(--bg-main);
+  box-shadow: 0 0 10px var(--accent);
 }
 
-/* Diferencia visual para usuário comum */
-.adm-container.user .adm-form {
-  display: none; /* usuário comum não vê formulário */
+/* Excluir */
+.adm-actions button:last-child {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.adm-actions button:last-child:hover {
+  background: var(--danger);
+  color: white;
+  box-shadow: 0 0 10px var(--danger);
+}
+
+/* === CONFIRMAÇÃO DE EXCLUSÃO (MODAL) === */
+.confirmation-dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.dialog-content {
+  background: var(--bg-card);
+  padding: 2.5rem;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: 0 0 30px rgba(94, 255, 0, 0.4);
+  color: var(--text-light);
+  max-width: 400px;
+  width: 90%;
+  border: 2px solid var(--accent);
+}
+.dialog-content h3 {
+  font-family: var(--font-title);
+  color: var(--accent);
+  margin-top: 0;
+}
+.dialog-content p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+.dialog-actions button {
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  border: none;
+  transition: var(--transition);
+}
+.dialog-actions button:first-child { /* Confirmar */
+  background: var(--danger);
+  color: white;
+}
+.dialog-actions button:first-child:hover {
+  background: #ff7f99;
+}
+.dialog-actions button:last-child { /* Cancelar */
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+.dialog-actions button:last-child:hover {
+  background: var(--accent);
+  color: var(--bg-main);
+}
+
+/* === FOOTER === */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+  .site-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 1rem;
+  }
+  .site-header nav {
+    padding-left: 0;
+  }
+  .site-header nav button {
+    margin: 4px;
+  }
+  .adm-container h1 {
+    font-size: 2rem;
+  }
+  .adm-dashboard {
+    margin: 1rem;
+    padding: 1.5rem;
+    width: auto;
+  }
+  .cards-metricas {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .card-metrica {
+    min-width: 90%;
+  }
+  .adm-form {
+    width: 90%;
+    margin: 1rem auto;
+  }
+  .produtos-list {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .produto-card {
+    max-width: 100%;
+  }
 }

@@ -1,0 +1,166 @@
+/* === FONTES E CORES (Consistente com Carrinho.css) === */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Cores (Dark Cyber/Neon) */
+  --bg-main: #0a0116; /* Fundo mais escuro */
+  --bg-card: #1c0638; /* Fundo do card/seções, roxo escuro */
+  --text-light: #f0e9ff; /* Texto principal claro */
+  --text-muted: #c8b8f9; /* Texto secundário, roxo claro */
+  --accent: #5eff00; /* Destaque Primário (Verde Neon) */
+  --accent-hover: #9aff4d; /* Destaque Hover (Verde Limão) */
+  --danger: #ff4d6d; /* Cor de perigo/erro */
+  --success: #00d4ff; /* Azul Neon para sucesso */
+  
+  /* Efeitos e Tipografia */
+  --shadow-neon: 0 0 15px rgba(94, 255, 0, 0.4); 
+  --radius: 12px;
+  --transition: 0.3s ease;
+  --font-title: 'Oxanium', sans-serif;
+  --font-primary: 'Inter', sans-serif;
+}
+
+/* === PÁGINA DE LOGIN === */
+.login-page {
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* === CARD DE LOGIN/REGISTRO === */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-card); 
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), var(--shadow-neon); /* Sombra + Brilho */
+    border: 1px solid rgba(94, 255, 0, 0.2);
+    text-align: center;
+}
+
+.login-card h2 {
+    font-family: var(--font-title);
+    color: var(--accent);
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    text-shadow: 0 0 5px var(--accent);
+}
+
+/* === MENSAGENS DE FEEDBACK (UX) === */
+.login-message {
+    background: #3e0d80; /* Roxo mais claro para contraste */
+    color: var(--text-light);
+    border-left: 5px solid var(--accent);
+    padding: 15px 25px;
+    margin-bottom: 20px;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    max-width: 400px;
+    width: 100%;
+    text-align: left;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Se a mensagem for de erro (ajustar no componente se precisar de estilização condicional) */
+/*
+.login-message.error {
+    border-left-color: var(--danger);
+}
+*/
+
+/* === FORMULÁRIO === */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.login-form input {
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid var(--text-muted);
+    background: #0a0116; /* Fundo do input bem escuro */
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.login-form input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(94, 255, 0, 0.6);
+}
+
+/* === BOTÃO SUBMIT (LOGIN / CRIAR CONTA) === */
+.login-submit {
+    background-color: var(--accent);
+    color: var(--bg-main); /* Texto escuro no neon */
+    border: none;
+    padding: 12px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    transition: var(--transition);
+    box-shadow: 0 0 10px var(--accent);
+    margin-top: 10px;
+}
+
+.login-submit:hover {
+    background-color: var(--accent-hover);
+    box-shadow: 0 0 20px var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* === AÇÕES (TOGGLE) === */
+.login-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+
+.login-toggle:hover {
+    color: var(--text-light);
+    text-decoration: underline;
+}
+
+/* === RESPONSIVIDADE (MOBILE) === */
+@media (max-width: 480px) {
+    .login-card {
+        margin: 10px;
+        padding: 25px;
+        border-radius: 8px;
+    }
+    .login-message {
+        margin: 0 10px 20px 10px;
+        font-size: 0.9rem;
+    }
+    .login-card h2 {
+        font-size: 1.5rem;
+    }
+    .login-submit {
+        font-size: 1rem;
+    }
+}
