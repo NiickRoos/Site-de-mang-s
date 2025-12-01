@@ -225,6 +225,12 @@ function Carrinho() {
         )}
 
         <h2 className="total">Total: R$ {total.toFixed(2)}</h2>
+        {/*Nicole fez o botão*/}
+        {itensFiltrados.length > 0 && (
+          <button className="finalizar-compra-btn">
+            Finalizar Compra
+          </button>
+        )}
         {/* [B3 – Guilherme] (pendente) Botão para excluir o carrinho inteiro */}
       </main>
 

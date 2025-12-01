@@ -239,6 +239,34 @@ body {
   border-top: 1px dashed var(--text-muted);
 }
 
+/* === BOTÃO FINALIZAR COMPRA === */
+.finalizar-compra-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 0 10px var(--accent);
+  letter-spacing: 1px;
+  font-family: var(--font-title);
+}
+
+.finalizar-compra-btn:hover {
+  box-shadow: 0 0 20px var(--accent), 0 0 5px var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.finalizar-compra-btn:active {
+  transform: translateY(0);
+}
+
 /* === FOOTER === */
 .footer {
   text-align: center;

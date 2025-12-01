@@ -19,7 +19,6 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-<<<<<<< HEAD
   // 🔹 Atualiza authToken quando o login/logout for feito em outro componente
   useEffect(() => {
     const handler = () => setAuthToken(localStorage.getItem('token'));
@@ -28,10 +27,6 @@ function App() {
   }, []);
 
   // 🔹 Carrega produtos ao abrir a página
-=======
-  // [A3 – Amanda] Carrega lista de produtos da API
-  // Consome GET /produtos e popula o estado para renderizar os cards
->>>>>>> 02c33b8621c79c1ebf122af7f37b507300d5a1ea
   useEffect(() => {
     api.get<ProdutoType[]>("/produtos")
       .then((response) => setProdutos(response.data))
@@ -106,7 +101,6 @@ function App() {
   return (
     <>
       <div className="top-actions">
-<<<<<<< HEAD
         {!authToken && (
           <Link className="login-button" to="/login">Login</Link>
         )}
@@ -124,44 +118,6 @@ function App() {
               style={{ marginLeft: 12 }}
               className="login-button"
               onClick={handleLogout}
-=======
-        {/* [A2 – Paulo] Botão de Login quando não autenticado */}
-        {!localStorage.getItem('token') && (
-          <Link className="login-button" to="/login">Login</Link>
-        )}
-        {/* [A2 – Paulo] Quando logado: links de carrinho e sair
-            [A5 – Guilherme] (pendente) Local para exibir nome/role do usuário no topo */}
-        {localStorage.getItem('token') && (
-          <>
-            {(() => {
-              try {
-                const t = localStorage.getItem('token');
-                if (!t) return null;
-                const payload = JSON.parse(atob(t.split('.')[1]));
-                if (payload?.role === 'admin') {
-                  return (
-                    <button
-                      style={{ marginRight: 12 }}
-                      className="login-button"
-                      onClick={() => navigate('/adm')}
-                    >
-                      Painel Admin
-                    </button>
-                  );
-                }
-              } catch {}
-              return null;
-            })()}
-            <Link style={{ marginLeft: 12 }} className="login-button" to="/carrinho">Meu Carrinho</Link>
-            <button
-              style={{ marginLeft: 12 }}
-              className="login-button"
-              onClick={() => {
-                localStorage.removeItem('token'); // logout simples no front
-                setNeedLoginPrompt(false);
-                navigate('/');
-              }}
->>>>>>> 02c33b8621c79c1ebf122af7f37b507300d5a1ea
             >
               Sair
             </button>
