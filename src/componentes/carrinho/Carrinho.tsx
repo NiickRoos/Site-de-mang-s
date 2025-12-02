@@ -4,20 +4,26 @@ import api from "../../api/api";
 import "./Carrinho.css";
 
 interface CarrinhoItem {
-  _id: string;
-  produto: {
-    _id: string;
-    nome: string;
-    preco: number | string;
-    descricao: string;
-    urlfoto: string;
-  };
+  itemId: string;
+  produtoId: string;
+  nome: string;
+  descricao: string;
+  urlfoto: string;
+  precoUnitario: number;
   quantidade: number;
 }
 
 interface CarrinhoResponse {
   _id: string;
-  itens: any[];
+  itens: Array<{
+    _id: string;
+    produtoId: string;
+    nome: string;
+    precoUnitario: number;
+    quantidade: number;
+    descricao: string;
+    urlfoto: string;
+  }>;
 }
 
 function Carrinho() {
@@ -27,139 +33,150 @@ function Carrinho() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // [A1 – Nicole] Proteção de rota: exige login antes de acessar o carrinho
+  // ===============================
+  // CARREGAR CARRINHO
+  // ===============================
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token || token === "undefined" || token === "null") {
-      localStorage.removeItem("token"); // Limpa o token inválido
-      const mensagem = encodeURIComponent("Faça login para acessar seu carrinho.");
-      const redirect = encodeURIComponent(location.pathname + location.search);
-      navigate(`/login?mensagem=${mensagem}&redirect=${redirect}`, { replace: true });
+
+    if (!token) {
+      const msg = encodeURIComponent("Faça login para acessar seu carrinho.");
+      const redirect = encodeURIComponent(location.pathname);
+      navigate(`/login?mensagem=${msg}&redirect=${redirect}`, { replace: true });
       return;
     }
 
-    // [Carregar carrinho] Busca carrinho do usuário autenticado
     api
       .get<CarrinhoResponse>("/carrinho", {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res: any) => {
-        if (res.data && Array.isArray(res.data.itens)) {
-          setCarrinhoId(res.data._id);
-          const normalizados: CarrinhoItem[] = res.data.itens.map((item: any) => ({
-            _id: item._id || item.produtoId,
-            produto: {
-              _id: item.produtoId,
-              nome: item.nome || "Produto sem nome",
-              preco: Number(item.precoUnitario) || 0,
-              descricao: item.descricao || "",
-              urlfoto: item.urlfoto || "",
-            },
-            quantidade: Number(item.quantidade) || 1,
-          }));
-          setItens(normalizados);
-        }
+      .then((res) => {
+        setCarrinhoId(res.data._id);
+
+        const normalizados = res.data.itens.map((i) => ({
+          itemId: i._id,
+          produtoId: i.produtoId,
+          nome: i.nome,
+          descricao: i.descricao,
+          urlfoto: i.urlfoto,
+          precoUnitario: Number(i.precoUnitario),
+          quantidade: Number(i.quantidade),
+        }));
+
+        setItens(normalizados);
       })
-      .catch((err) => {
-        console.error(err);
-        alert(err?.response?.data?.mensagem || "Erro ao carregar carrinho");
+      .catch((error) => {
+        console.error(error);
+        alert(error?.response?.data?.mensagem || "Erro ao carregar carrinho");
       });
   }, [navigate, location]);
 
-  // [B4 – Amanda] Filtro de itens por nome
+  // ===============================
+  // FILTRO
+  // ===============================
   const itensFiltrados = useMemo(() => {
-    const f = filtro.trim().toLowerCase();
+    const f = filtro.toLowerCase();
     if (!f) return itens;
-    return itens.filter((i) => i.produto.nome.toLowerCase().includes(f));
+    return itens.filter((i) => i.nome.toLowerCase().includes(f));
   }, [filtro, itens]);
 
-  // [B2 – Paulo] Alterar quantidade do item com validações melhoradas
+  // ===============================
+  // ATUALIZAR QUANTIDADE
+  // ===============================
   function atualizarQuantidade(itemId: string, novaQtd: number) {
     if (novaQtd <= 0) return;
     if (!carrinhoId) return alert("Carrinho não encontrado");
 
     const token = localStorage.getItem("token");
-    if (!token || token === "undefined" || token === "null") {
-      const mensagem = encodeURIComponent("Faça login para atualizar o carrinho.");
-      const redirect = encodeURIComponent(location.pathname);
-      navigate(`/login?mensagem=${mensagem}&redirect=${redirect}`);
-      return;
-    }
+    if (!token) return navigate("/login");
 
-    const item = itens.find((i) => i._id === itemId);
+    const item = itens.find((i) => i.itemId === itemId);
     if (!item) return;
 
     const quantidadeAnterior = item.quantidade;
 
-    // Atualiza o estado otimisticamente
     setItens((prev) =>
-      prev.map((i) => (i._id === itemId ? { ...i, quantidade: novaQtd } : i))
+      prev.map((i) =>
+        i.itemId === itemId ? { ...i, quantidade: novaQtd } : i
+      )
     );
 
-    // Faz a requisição para o backend
     api
-      .put(`/carrinho/${carrinhoId}`, {
-        produtoId: item.produto._id,
-        quantidade: novaQtd,
-      })
-      .then(() => {
-        console.log("Quantidade atualizada com sucesso");
-      })
+      .put(
+        `/carrinho/${carrinhoId}`,
+        { produtoId: item.produtoId, quantidade: novaQtd },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
       .catch((error) => {
-        // Em caso de erro, reverte a alteração
+        console.error("Erro ao atualizar:", error);
+
         setItens((prev) =>
           prev.map((i) =>
-            i._id === itemId ? { ...i, quantidade: quantidadeAnterior } : i
+            i.itemId === itemId ? { ...i, quantidade: quantidadeAnterior } : i
           )
         );
-        console.error("Erro ao atualizar quantidade:", error);
+
         alert(error?.response?.data?.mensagem || "Erro ao atualizar quantidade");
       });
   }
 
-  // [B1 – Nicole] Remover item do carrinho
+  // ===============================
+  // REMOVER ITEM
+  // ===============================
   function removerItem(itemId: string) {
     if (!carrinhoId) return alert("Carrinho não encontrado");
 
     const token = localStorage.getItem("token");
-    if (!token || token === "undefined" || token === "null") {
-      const mensagem = encodeURIComponent("Faça login para remover itens.");
-      const redirect = encodeURIComponent(location.pathname);
-      navigate(`/login?mensagem=${mensagem}&redirect=${redirect}`);
-      return;
-    }
 
     api
-      .delete(`/carrinho/${carrinhoId}/item/${itemId}`)
-      .then(() => setItens((prev) => prev.filter((i) => i._id !== itemId)))
+      .delete(`/carrinho/${carrinhoId}/item/${itemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        setItens((prev) => prev.filter((i) => i.itemId !== itemId));
+      })
       .catch((error) => {
         console.error("Erro ao remover item:", error);
         alert(error?.response?.data?.mensagem || "Erro ao remover item");
       });
   }
 
-  // [B5 – Amanda] Total atualizado do carrinho
+  // ===============================
+  // TOTAL
+  // ===============================
   const total = useMemo(
-    () => itens.reduce((acc, i) => acc + Number(i.produto.preco) * i.quantidade, 0),
+    () => itens.reduce((acc, i) => acc + i.precoUnitario * i.quantidade, 0),
     [itens]
   );
 
+  // ===============================
+  // FINALIZAR COMPRA (VIA STRIPE)
+  // ===============================
+  function irParaPagamento() {
+    if (!carrinhoId) return alert("Carrinho inválido");
+    if (itens.length === 0) return alert("Carrinho vazio");
+
+    navigate("/finalizar-compra", {
+      state: { carrinhoId },
+    });
+  }
+
+  // ===============================
+  // RENDERIZAÇÃO
+  // ===============================
   return (
     <div className="carrinho-page">
-      {/* Cabeçalho visual do carrinho */}
       <header className="header">
         <h1 className="logo">MangáVerse</h1>
         <nav className="menu">
           <button onClick={() => navigate("/")} className="menu-btn">
             Início
           </button>
-          
-          
         </nav>
       </header>
 
       <main className="carrinho-container">
-        <h2 className="titulo"> Meu Carrinho</h2>
+        <h2 className="titulo">Meu Carrinho</h2>
 
         <div className="filtro-container">
           <input
@@ -178,34 +195,39 @@ function Carrinho() {
         ) : (
           <div className="lista-itens">
             {itensFiltrados.map((item) => (
-              <div key={String(item._id)} className="card-item">
+              <div key={item.itemId} className="card-item">
                 <img
-                  src={item.produto.urlfoto || "/fallback-avatar.svg"}
-                  alt={item.produto.nome}
+                  src={item.urlfoto || "/fallback-avatar.svg"}
+                  alt={item.nome}
                 />
                 <div className="info-item">
-                  <h3>{item.produto.nome}</h3>
-                  <p>Preço: R$ {Number(item.produto.preco).toFixed(2)}</p>
+                  <h3>{item.nome}</h3>
+                  <p>Preço: R$ {item.precoUnitario.toFixed(2)}</p>
 
                   <div className="quantidade">
                     <button
                       onClick={() =>
-                        atualizarQuantidade(item._id, item.quantidade - 1)
+                        atualizarQuantidade(item.itemId, item.quantidade - 1)
                       }
                     >
                       -
                     </button>
+
                     <input
                       type="number"
                       value={item.quantidade}
                       min={1}
                       onChange={(e) =>
-                        atualizarQuantidade(item._id, Number(e.target.value))
+                        atualizarQuantidade(
+                          item.itemId,
+                          Number(e.target.value)
+                        )
                       }
                     />
+
                     <button
                       onClick={() =>
-                        atualizarQuantidade(item._id, item.quantidade + 1)
+                        atualizarQuantidade(item.itemId, item.quantidade + 1)
                       }
                     >
                       +
@@ -214,7 +236,7 @@ function Carrinho() {
 
                   <button
                     className="remover-btn"
-                    onClick={() => removerItem(item._id)}
+                    onClick={() => removerItem(item.itemId)}
                   >
                     Remover
                   </button>
@@ -225,13 +247,12 @@ function Carrinho() {
         )}
 
         <h2 className="total">Total: R$ {total.toFixed(2)}</h2>
-        {/*Nicole fez o botão*/}
+
         {itensFiltrados.length > 0 && (
-          <button className="finalizar-compra-btn">
-            Finalizar Compra
+          <button className="finalizar-compra-btn" onClick={irParaPagamento}>
+            Pagar com cartão 💳
           </button>
         )}
-        {/* [B3 – Guilherme] (pendente) Botão para excluir o carrinho inteiro */}
       </main>
 
       <footer className="footer">

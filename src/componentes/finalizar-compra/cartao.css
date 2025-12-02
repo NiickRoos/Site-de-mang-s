@@ -1,0 +1,38 @@
+.pagamento-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #111;
+  border-radius: 12px;
+  color: white;
+}
+
+.pagamento-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.stripe-input {
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: white;
+  margin-bottom: 18px;
+}
+
+button.pagar-btn {
+  padding: 12px 20px;
+  border: none;
+  background: #6c5ce7;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+}
+
+button.pagar-btn:disabled {
+  background: #444;
+  cursor: not-allowed;
+}
