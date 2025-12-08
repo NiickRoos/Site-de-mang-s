@@ -23,11 +23,18 @@ export default function CartaoPagamento() {
     setLoading(true);
 
     try {
-      // 👉 TIPAGEM CORRETA DO AXIOS
+      // 🔐 Pegando o token salvo no login
+      const token = localStorage.getItem("token");
+
+      // 👉 Requisição AGORA com credencial (Authorization)
       const { data } = await axios.post<{ clientSecret: string }>(
         `${API_URL}/criar-pagamento-cartao`,
         {},
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const clientSecret = data.clientSecret;
@@ -43,9 +50,11 @@ export default function CartaoPagamento() {
       } else if (result.paymentIntent?.status === "succeeded") {
         setStatus("Pagamento aprovado! 🎉");
       }
-    } catch (err) {
-      setStatus("Erro ao criar pagamento");
+    } catch (err: any) {
       console.error(err);
+      setStatus(
+        err.response?.data?.mensagem || "Erro ao criar pagamento."
+      );
     }
 
     setLoading(false);
