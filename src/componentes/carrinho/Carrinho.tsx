@@ -163,7 +163,7 @@ function Carrinho() {
     navigate("/finalizar-compra", {
       state: {
         carrinhoId,
-        total, // <<<<<<<<<< ADICIONADO
+        total, 
       },
     });
   }
