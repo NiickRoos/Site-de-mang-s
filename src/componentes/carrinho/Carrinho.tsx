@@ -160,9 +160,14 @@ function Carrinho() {
     if (!carrinhoId) return alert("Carrinho inválido");
     if (itens.length === 0) return alert("Carrinho vazio");
 
-    navigate("/finalizar-compra", { state: { carrinhoId } });
+    navigate("/finalizar-compra", {
+      state: {
+        carrinhoId,
+        total, // <<<<<<<<<< ADICIONADO
+      },
+    });
   }
-
+  
   // ===============================
   // RENDER
   // ===============================
