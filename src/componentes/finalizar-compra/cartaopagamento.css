@@ -1,0 +1,34 @@
+.card-element {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  margin-bottom: 15px;
+  font-size: 16px;
+  background: white;
+}
+
+.card-element.StripeElement--focus {
+  border-color: #4A90E2;
+}
+
+.card-element.StripeElement--invalid {
+  border-color: red;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  background: #4A90E2;
+  color: white;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
