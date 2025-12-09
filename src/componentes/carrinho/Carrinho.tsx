@@ -14,9 +14,8 @@ interface CarrinhoItem {
 }
 
 interface CarrinhoResponse {
-  _id: string;
+  _id: string | null;
   itens: Array<{
-    _id: string;
     produtoId: string;
     nome: string;
     precoUnitario: number;
@@ -51,10 +50,15 @@ function Carrinho() {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
+        if (!res.data._id) {
+          setItens([]);
+          return;
+        }
+
         setCarrinhoId(res.data._id);
 
         const normalizados = res.data.itens.map((i) => ({
-          itemId: i._id,
+          itemId: i.produtoId, // backend usa produtoId como identificador
           produtoId: i.produtoId,
           nome: i.nome,
           descricao: i.descricao,
@@ -95,10 +99,9 @@ function Carrinho() {
 
     const quantidadeAnterior = item.quantidade;
 
+    // Atualiza visualmente
     setItens((prev) =>
-      prev.map((i) =>
-        i.itemId === itemId ? { ...i, quantidade: novaQtd } : i
-      )
+      prev.map((i) => (i.itemId === itemId ? { ...i, quantidade: novaQtd } : i))
     );
 
     api
@@ -110,13 +113,14 @@ function Carrinho() {
       .catch((error) => {
         console.error("Erro ao atualizar:", error);
 
+        // desfaz
         setItens((prev) =>
           prev.map((i) =>
             i.itemId === itemId ? { ...i, quantidade: quantidadeAnterior } : i
           )
         );
 
-        alert(error?.response?.data?.mensagem || "Erro ao atualizar quantidade");
+        alert(error?.response?.data?.message || "Erro ao atualizar quantidade");
       });
   }
 
@@ -132,12 +136,12 @@ function Carrinho() {
       .delete(`/carrinho/${carrinhoId}/item/${itemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then(() => {
-        setItens((prev) => prev.filter((i) => i.itemId !== itemId));
-      })
+      .then(() =>
+        setItens((prev) => prev.filter((i) => i.itemId !== itemId))
+      )
       .catch((error) => {
         console.error("Erro ao remover item:", error);
-        alert(error?.response?.data?.mensagem || "Erro ao remover item");
+        alert(error?.response?.data?.message || "Erro ao remover item");
       });
   }
 
@@ -156,13 +160,11 @@ function Carrinho() {
     if (!carrinhoId) return alert("Carrinho inválido");
     if (itens.length === 0) return alert("Carrinho vazio");
 
-    navigate("/finalizar-compra", {
-      state: { carrinhoId },
-    });
+    navigate("/finalizar-compra", { state: { carrinhoId } });
   }
 
   // ===============================
-  // RENDERIZAÇÃO
+  // RENDER
   // ===============================
   return (
     <div className="carrinho-page">
@@ -196,10 +198,7 @@ function Carrinho() {
           <div className="lista-itens">
             {itensFiltrados.map((item) => (
               <div key={item.itemId} className="card-item">
-                <img
-                  src={item.urlfoto || "/fallback-avatar.svg"}
-                  alt={item.nome}
-                />
+                <img src={item.urlfoto || "/fallback-avatar.svg"} alt={item.nome} />
                 <div className="info-item">
                   <h3>{item.nome}</h3>
                   <p>Preço: R$ {item.precoUnitario.toFixed(2)}</p>
@@ -218,10 +217,7 @@ function Carrinho() {
                       value={item.quantidade}
                       min={1}
                       onChange={(e) =>
-                        atualizarQuantidade(
-                          item.itemId,
-                          Number(e.target.value)
-                        )
+                        atualizarQuantidade(item.itemId, Number(e.target.value))
                       }
                     />
 

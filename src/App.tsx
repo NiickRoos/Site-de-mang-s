@@ -64,7 +64,7 @@ function App() {
       {
         produtoId,
         quantidade: 1,
-        preco: produto.preco,
+        precoUnitario: produto.preco,
         nome: produto.nome,
       },
       {
